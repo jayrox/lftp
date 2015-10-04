@@ -98,7 +98,7 @@ EOF
 fi
 EOT
 
-cp /opt/syncftp.sh /etc/lftp/
+cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 
 #########################################
 ##                 CLEANUP             ##
