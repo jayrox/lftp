@@ -27,9 +27,6 @@ apt-get update -qq
 apt-get install -qy -f lftp \
                       unrar
 
-#########################################
-##  FILES, SERVICES AND CONFIGURATION  ##
-#########################################
 # Sync FTP Script
 mkdir -p /etc/lftp
 
@@ -48,57 +45,6 @@ port=$FTP_PORT
 remote_dir=/home/rtorrentuser/complete/.
 local_dir="/var/downloads"
 
-lftp << EOF
-  set ftp:ssl-auth TLS
-  set ftp:ssl-force true
-  set ftp:ssl-protect-list yes
-  set ftp:ssl-protect-data yes
-  set ssl:verify-certificate off
-  open -p $port -u $login,$pass $host
-  cd "$remote_dir"
-  find . | grep [[:alnum:]] | sed -e 's~.~rmdir" "-f" "\".~' -e 's~$~\"~' | tac > /tmp/delete
-  mirror -v --no-empty-dirs --Remove-source-files -c $remote_dir $local_dir
-  source /tmp/delete
-  quit 0
-EOF
-
-  #start working in the mounted directory
-  cd $local_dir
-  #look for which folders exist.
-  for folder in */
-    #only try the following if there is a directory
-    do if [ -d "$folder" ]
-    then
-        #Enter each folder
-        cd "$folder"
-        echo "entering $folder"
-        #date
-                #Look for the filename ending in .rar
-                for filename in *.rar
-                        do echo "extracting $filename"
-                        #first do will extract the files from the rar and then delete the .rar file
-                        find . ! -name . -prune -type d -o -name "*.rar" -print -exec unrar e {} -y -o- \; -exec rm {} \;
-
-                        #other options to find to extract from
-                        #find . -name "*part01.rar" -exec unrar e {} -y -o- \;
-                        #find . -name "*part001.rar" -exec unrar e {} -y -o- \;
-                        #find . -name "*.r00" -exec unrar e {} -y -o- \;
-
-                        #this do will then delete all the *.r01, *.r02 etc.
-                        find . ! -name . -prune -type d -o -name "*.r[0-9]*[0-9]" -print -exec rm {} \;
-                        #I also dont use the SFV files so lets delete them also
-                        find . ! -name . -prune -type d -o -name "*.sfv" -print -exec rm {} \;
-                        #find . -name "*.r*" -exec rm {} \;
-                done
-        #go back up a directory
-         cd "..";
-        chmod -R 777 "$folder"
-    fi
-    done
-  #remove the lock file
-  #rm -f /tmp/synctorrent.lock
-  exit 0
-fi
 EOT
 
 #########################################
