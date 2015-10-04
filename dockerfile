@@ -1,6 +1,6 @@
-FROM phusion/baseimage:0.9.16
+FROM phusion/baseimage:0.9.17
 MAINTAINER Scottst <scott.st@gmail.com>
-LABEL BASEIMAGE="phusion/baseimage:0.9.16"
+LABEL BASEIMAGE="phusion/baseimage:0.9.17"
 
 #########################################
 ##        ENVIRONMENTAL CONFIG         ##
@@ -21,4 +21,3 @@ RUN chmod +x /tmp/install.sh && /tmp/install.sh && rm /tmp/install.sh
 ##         EXPORTS AND VOLUMES         ##
 #########################################
 VOLUME ["/"]
-EXPOSE 8000 8001
