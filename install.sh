@@ -31,6 +31,8 @@ apt-get install -qy -f lftp \
 ##  FILES, SERVICES AND CONFIGURATION  ##
 #########################################
 # Sync FTP Script
+mkdir -p /mnt/appdata
+
 cat <<'EOT' > /mnt/appdata/syncftp.sh
 #!/bin/bash
 # This script will enter the FTP, mirror the completed directory to the locally mounted directory (unraid server mnt/cache/downloads share by default)
