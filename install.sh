@@ -46,7 +46,7 @@ pass=$FTP_PASSWORD
 host=$FTP_HOST
 port=$FTP_PORT
 remote_dir=/home/rtorrentuser/complete/.
-local_dir="/mnt/downloads"
+local_dir="/var/downloads"
 
 lftp << EOF
   set ftp:ssl-auth TLS
