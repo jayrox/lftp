@@ -30,7 +30,7 @@ apt-get install -qy -f lftp \
 # Sync FTP Script
 mkdir -p /etc/lftp
 
-cat <<'EOT' > /etc/lftp/syncftp.sh
+cat <<'EOT' > /opt/syncftp.sh
 #!/bin/bash
 # This script will enter the FTP, mirror the completed directory to the locally mounted directory (unraid server mnt/cache/downloads share by default)
 # After downloading from the FTP it will remove the FTP files
@@ -96,8 +96,9 @@ EOF
   #rm -f /tmp/synctorrent.lock
   exit 0
 fi
-
 EOT
+
+cp /opt/syncftp.sh /etc/lftp/
 
 #########################################
 ##                 CLEANUP             ##
