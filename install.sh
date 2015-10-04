@@ -27,9 +27,27 @@ apt-get update -qq
 apt-get install -qy -f lftp \
                       unrar
 
-# Sync FTP Script
+#Startup Script
+cat <<'EOT' > /etc/my_init.d/config.sh
+#!/bin/bash
+
+#Find FTP_PORT, FTP_USER, FTP_PASSWORD, FTP_HOST in the script and replace it with the environment variable
+if [[ -z $FTP_PORT ]]; then
+  FTP_PORT=990
+fi
+sed -i -e "s#FTP_PORT#${FTP_PORT}#" /opt/syncftp.sh
+
+sed -i -e "s#FTP_USER#${FTP_USER}#" /opt/syncftp.sh
+sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /opt/syncftp.sh
+sed -i -e "s#FTP_HOST#${FTP_HOST}#" /opt/syncftp.sh
+
+#Copy the bash script to the unraid mounted folder
+cp /opt/syncftp.sh /etc/lftp/syncftp.sh
+EOT
+
 mkdir -p /etc/lftp
 
+# Sync FTP Script
 cat <<'EOT' > /opt/syncftp.sh
 #!/bin/bash
 # This script will enter the FTP, mirror the completed directory to the locally mounted directory (unraid server mnt/cache/downloads share by default)
@@ -38,10 +56,10 @@ cat <<'EOT' > /opt/syncftp.sh
 # It will then delete the RAR files
 # This script is designed to work with Scene Release file structures
 
-login="$FTP_USER"
-pass=$FTP_PASSWORD
-host=$FTP_HOST
-port=$FTP_PORT
+login=FTP_USER
+pass=FTP_PASSWORD
+host=FTP_HOST
+port=FTP_PORT
 remote_dir=/home/rtorrentuser/complete/.
 local_dir="/mnt/downloads"
 
@@ -97,8 +115,6 @@ EOF
   exit 0
 fi
 EOT
-
-cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 
 #########################################
 ##                 CLEANUP             ##
