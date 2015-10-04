@@ -20,4 +20,4 @@ RUN chmod +x /tmp/install.sh && /tmp/install.sh && rm /tmp/install.sh
 #########################################
 ##         EXPORTS AND VOLUMES         ##
 #########################################
-VOLUME ["/var/lftp"]
+VOLUME ["/etc/lftp"]
