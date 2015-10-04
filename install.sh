@@ -38,7 +38,7 @@ cat <<'EOT' > /opt/syncftp.sh
 # It will then delete the RAR files
 # This script is designed to work with Scene Release file structures
 
-login=$FTP_USER
+login="$FTP_USER"
 pass=$FTP_PASSWORD
 host=$FTP_HOST
 port=$FTP_PORT
