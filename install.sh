@@ -31,7 +31,7 @@ apt-get install -qy -f lftp \
 cat <<'EOT' > /etc/my_init.d/config.sh
 #!/bin/bash
 
-#Find FTP_PORT, FTP_USER, FTP_PASSWORD, FTP_HOST in the script and replace it with the environment variable
+#Find FTP_PORT, FTP_USER, FTP_PASSWORD, FTP_HOST, FTP_REMOTE_DIR in the script and replace it with the environment variable
 if [[ -z $FTP_PORT ]]; then
   FTP_PORT=990
 fi
@@ -40,6 +40,10 @@ sed -i -e "s#FTP_PORT#${FTP_PORT}#" /opt/syncftp.sh
 sed -i -e "s#FTP_USER#${FTP_USER}#" /opt/syncftp.sh
 sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /opt/syncftp.sh
 sed -i -e "s#FTP_HOST#${FTP_HOST}#" /opt/syncftp.sh
+if [[ -z $FTP_PORT ]]; then
+  FTP_REMOTE_DIR=/
+fi
+sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /opt/syncftp.sh
 
 #Copy the bash script to the unraid mounted folder
 cp /opt/syncftp.sh /etc/lftp/syncftp.sh
@@ -60,9 +64,10 @@ login=FTP_USER
 pass=FTP_PASSWORD
 host=FTP_HOST
 port=FTP_PORT
-remote_dir=/home/rtorrentuser/complete/.
+remote_dir=FTP_REMOTE_DIR
 local_dir="/mnt/downloads"
 
+#lftp connection information.  Can be modified for specific connection requirements
 lftp << EOF
   set ftp:ssl-auth TLS
   set ftp:ssl-force true
@@ -86,7 +91,6 @@ EOF
     then
         #Enter each folder
         cd "$folder"
-        echo "entering $folder"
         #date
                 #Look for the filename ending in .rar
                 for filename in *.rar
@@ -110,8 +114,6 @@ EOF
         chmod -R 777 "$folder"
     fi
     done
-  #remove the lock file
-  #rm -f /tmp/synctorrent.lock
   exit 0
 fi
 EOT
