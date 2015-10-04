@@ -31,9 +31,9 @@ apt-get install -qy -f lftp \
 ##  FILES, SERVICES AND CONFIGURATION  ##
 #########################################
 # Sync FTP Script
-mkdir -p /mnt/appdata
+mkdir -p /var/lftp
 
-cat <<'EOT' > /mnt/appdata/syncftp.sh
+cat <<'EOT' > /var/lftp/syncftp.sh
 #!/bin/bash
 # This script will enter the FTP, mirror the completed directory to the locally mounted directory (unraid server mnt/cache/downloads share by default)
 # After downloading from the FTP it will remove the FTP files
@@ -41,10 +41,10 @@ cat <<'EOT' > /mnt/appdata/syncftp.sh
 # It will then delete the RAR files
 # This script is designed to work with Scene Release file structures
 
-login=FTP_USER
-pass=FTP_PASSWORD
-host=FTP_HOST
-port=FTP_PORT
+login=$FTP_USER
+pass=$FTP_PASSWORD
+host=$FTP_HOST
+port=$FTP_PORT
 remote_dir=/home/rtorrentuser/complete/.
 local_dir="/mnt/downloads"
 
