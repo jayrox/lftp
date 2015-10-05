@@ -95,8 +95,9 @@ local_dir="/mnt/downloads"
 #lftp connection information.  May need to be modified for specific connection requirements
 lftp << EOF
   set net:timeout 30
-  set net:max-retries 5
+  set net:max-retries 10
   set net:reconnect-interval-base 5
+  set net:reconnect-interval-multiplier 5
   set ftp:ssl-auth TLS
   set ftp:ssl-force true
   set ftp:ssl-protect-list yes
