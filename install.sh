@@ -58,8 +58,8 @@ cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 crontab -l > tempcronfile
 #echo new cron into cron file
 #run at 1am
-$FTP_CRON_JOB += " /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1 >> tempcronfile"
-echo $FTP_CRON_JOB
+$FTP_CRON_JOB += " /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1"
+echo $FTP_CRON_JOB >> tempcronfile
 #install new cron file
 crontab tempcronfile
 rm tempcronfile
