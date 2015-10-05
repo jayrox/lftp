@@ -45,6 +45,10 @@ if [[ -z $FTP_REMOTE_DIR ]]; then
 fi
 sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /opt/syncftp.sh
 
+if [[ -z $FTP_CRON_JOB ]]; then
+  FTP_CRON_JOB="0 1 * * *"
+fi
+
 #Copy the bash script to the unraid mounted folder
 cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 
@@ -54,7 +58,8 @@ cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 crontab -l > tempcronfile
 #echo new cron into cron file
 #run at 1am
-echo "0 1 * * * /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1" >> tempcronfile
+$FTP_CRON_JOB += " /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1" >> tempcronfile"
+echo $FTP_CRON_JOB
 #install new cron file
 crontab tempcronfile
 rm tempcronfile
