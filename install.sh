@@ -41,7 +41,7 @@ sed -i -e "s#FTP_USER#${FTP_USER}#" /opt/syncftp.sh
 sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /opt/syncftp.sh
 sed -i -e "s#FTP_HOST#${FTP_HOST}#" /opt/syncftp.sh
 if [[ -z $FTP_REMOTE_DIR ]]; then
-  FTP_REMOTE_DIR=/
+  FTP_REMOTE_DIR="/."
 fi
 sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /opt/syncftp.sh
 
