@@ -52,17 +52,9 @@ fi
 #Copy the bash script to the unraid mounted folder
 cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 
-#Add to Cron to run the script nightly
-
-#write out current crontab
-crontab -l > tempcronfile
-#echo new cron into cron file
-#run at 1am
+#Add to cron to run the script as per user
 $FTP_CRON_JOB += ' /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1'
-echo $FTP_CRON_JOB >> tempcronfile
-#install new cron file
-#crontab tempcronfile
-#rm tempcronfile
+(crontab -u nobody -l; echo "$FTP_CRON_JOB" ) | crontab -u nobody -
 EOT
 
 mkdir -p /etc/lftp
