@@ -46,7 +46,7 @@ fi
 sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /opt/syncftp.sh
 
 if [[ -z $FTP_CRON_JOB ]]; then
-  FTP_CRON_JOB="0 1 * * *"
+  $FTP_CRON_JOB="0 1 * * *"
 fi
 
 #Copy the bash script to the unraid mounted folder
