@@ -1,5 +1,11 @@
 #!/bin/bash
-
+#
+# Thanks to the work by gfjardim for providing the format for this docker.
+# https://github.com/gfjardim/
+#
+# Created Oct 4, 2015
+# Modified Oct 5, 2015
+#
 #########################################
 ##        ENVIRONMENTAL CONFIG         ##
 #########################################
@@ -22,40 +28,51 @@ rm -rf /etc/service/sshd /etc/service/syslog-ng /etc/my_init.d/00_regen_ssh_host
 add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty universe multiverse"
 add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty-updates universe multiverse"
 add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-proposed restricted main multiverse universe"
-# Install Dependencies
+
+# Install Required Programs
 apt-get update -qq
 apt-get install -qy -f lftp \
                       unrar
 
-#Startup Script
+# Startup Script
 cat <<'EOT' > /etc/my_init.d/config.sh
 #!/bin/bash
 
-#Find FTP_PORT, FTP_USER, FTP_PASSWORD, FTP_HOST, FTP_REMOTE_DIR in the script and replace it with the environment variable
+# Find FTP_PORT, FTP_USER, FTP_PASSWORD, FTP_HOST, FTP_REMOTE_DIR in the ftpsync script and replace it with the environment variable
+
+# If the port environment variable is not set assume port 990
 if [[ -z $FTP_PORT ]]; then
   FTP_PORT=990
 fi
-sed -i -e "s#FTP_PORT#${FTP_PORT}#" /opt/syncftp.sh
 
-sed -i -e "s#FTP_USER#${FTP_USER}#" /opt/syncftp.sh
-sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /opt/syncftp.sh
-sed -i -e "s#FTP_HOST#${FTP_HOST}#" /opt/syncftp.sh
+# If the Remote Host Directory environment variable is not set assume /
 if [[ -z $FTP_REMOTE_DIR ]]; then
   FTP_REMOTE_DIR="/."
 fi
+
+# Replace variables in the script
+sed -i -e "s#FTP_PORT#${FTP_PORT}#" /opt/syncftp.sh
+sed -i -e "s#FTP_USER#${FTP_USER}#" /opt/syncftp.sh
+sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /opt/syncftp.sh
+sed -i -e "s#FTP_HOST#${FTP_HOST}#" /opt/syncftp.sh
 sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /opt/syncftp.sh
 
+# If no cron time is specified use daily at 1AM
 if [[ -z $FTP_CRON_JOB ]]; then
   $FTP_CRON_JOB="0 1 * * *"
 fi
 
-#Copy the bash script to the unraid mounted folder
+# Copy the bash script to the unraid mounted folder (Is this needed?)
 cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 
-#Add to cron to run the script as per user
+# Make sure the script is executable
+chmod +x /etc/lftp/syncftp.sh
+
+# Add a cron to run the script
 FTP_CRON_JOB+=" /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1"
 crontab -l | { cat; echo "$FTP_CRON_JOB"; } | crontab -
 EOT
+
 
 mkdir -p /etc/lftp
 
@@ -75,17 +92,21 @@ port=FTP_PORT
 remote_dir=FTP_REMOTE_DIR
 local_dir="/mnt/downloads"
 
-#lftp connection information.  Can be modified for specific connection requirements
+#lftp connection information.  May need to be modified for specific connection requirements
 lftp << EOF
+  net:timeout 30
+  set net:max-retries 5
+  set net:reconnect-interval-base 5
   set ftp:ssl-auth TLS
   set ftp:ssl-force true
   set ftp:ssl-protect-list yes
   set ftp:ssl-protect-data yes
   set ssl:verify-certificate off
+  set mirror:use-pget-n 5
   open -p $port -u $login,$pass $host
   cd "$remote_dir"
   find . | grep [[:alnum:]] | sed -e 's~.~rmdir" "-f" "\".~' -e 's~$~\"~' | tac > /tmp/delete
-  mirror -v --no-empty-dirs --Remove-source-files -c $remote_dir $local_dir
+  mirror -c -P2 --no-empty-dirs --Remove-source-files $remote_dir $local_dir
   source /tmp/delete
   quit 0
 EOF
