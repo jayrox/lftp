@@ -40,13 +40,24 @@ sed -i -e "s#FTP_PORT#${FTP_PORT}#" /opt/syncftp.sh
 sed -i -e "s#FTP_USER#${FTP_USER}#" /opt/syncftp.sh
 sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /opt/syncftp.sh
 sed -i -e "s#FTP_HOST#${FTP_HOST}#" /opt/syncftp.sh
-if [[ -z $FTP_PORT ]]; then
+if [[ -z $FTP_REMOTE_DIR ]]; then
   FTP_REMOTE_DIR=/
 fi
 sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /opt/syncftp.sh
 
 #Copy the bash script to the unraid mounted folder
 cp /opt/syncftp.sh /etc/lftp/syncftp.sh
+
+#Add to Cron to run the script nightly
+
+#write out current crontab
+crontab -l > tempcronfile
+#echo new cron into cron file
+#run at 1am
+echo "0 1 * * * /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1" >> tempcronfile
+#install new cron file
+crontab tempcronfile
+rm tempcronfile
 EOT
 
 mkdir -p /etc/lftp
