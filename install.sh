@@ -61,7 +61,7 @@ crontab -l > tempcronfile
 $FTP_CRON_JOB += " /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1"
 echo $FTP_CRON_JOB >> tempcronfile
 #install new cron file
-crontab tempcronfile
+#crontab tempcronfile
 #rm tempcronfile
 EOT
 
