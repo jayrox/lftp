@@ -53,8 +53,8 @@ fi
 cp /opt/syncftp.sh /etc/lftp/syncftp.sh
 
 #Add to cron to run the script as per user
-$FTP_CRON_JOB+=" /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1"
-(crontab -u nobody -l; echo "$FTP_CRON_JOB" ) | crontab -u nobody -
+FTP_CRON_JOB+=" /etc/lftp/syncftp.sh >> /etc/lftp/syncftp.log 2>&1"
+crontab -l | { cat; echo "$FTP_CRON_JOB"; } | crontab -
 EOT
 
 mkdir -p /etc/lftp
