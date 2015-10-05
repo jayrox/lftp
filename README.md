@@ -11,8 +11,10 @@ This needs to connect to an excrypted FTP server.  ie. Explicit FTP over TLS.
 Required Environment Variables: 
 -------------------------------
 FTP_USER,
+
 FTP_PASSWORD,
-FTP_HOST,
+
+FTP_HOST
 
 Other Environment Variables:
 ----------------------------
