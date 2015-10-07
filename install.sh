@@ -107,7 +107,7 @@ lftp << EOF
   open -p $port -u $login,$pass $host
   cd "$remote_dir"
   find . | grep [[:alnum:]] | sed -e 's~.~rmdir" "-f" "\".~' -e 's~$~\"~' | tac > /tmp/delete
-  mirror -c -P2 -vvv--no-empty-dirs --Remove-source-files $remote_dir $local_dir
+  mirror -c -P2 -vvv --no-empty-dirs --Remove-source-files $remote_dir $local_dir
   source /tmp/delete
   quit 0
 EOF
