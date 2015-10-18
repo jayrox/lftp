@@ -174,7 +174,6 @@ then
       fi
       done
     exit 0
-  fi
   EOT
 fi
 
