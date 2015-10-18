@@ -97,7 +97,7 @@ EOT
 # Check if the FTP script file exists in the mounted directory.  Only create if it does not exist.
 if [! -f "/mnt/lftp/syncftp.sh" ]; then
   # Create Sync FTP Script
-  cat <<'EOT' > /opt/syncControl.sh
+cat <<'EOT' > /opt/syncControl.sh
   #!/bin/bash
   #
   # Variables are stored in /etc/lftp/syncControl.sh
@@ -172,7 +172,7 @@ if [! -f "/mnt/lftp/syncftp.sh" ]; then
     fi
   done
   exit 0
-  EOT
+EOT
 fi
 
 chmod -R +x /etc/service/ /etc/my_init.d/
