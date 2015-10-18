@@ -169,7 +169,6 @@ do
 done
 exit 0
 EOT
-fi
 
 chmod -R +x /etc/service/ /etc/my_init.d/
 
