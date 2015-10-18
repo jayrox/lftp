@@ -64,8 +64,7 @@ fi
 
 # Copy the ftp script to the unraid mounted folder
 # Check if the FTP script file exists in the mounted directory.  Only copy it if it does not exist.
-if [! -f "/mnt/lftp/syncftp.sh" ]
-then
+if [! -f "/mnt/lftp/syncftp.sh" ]; then
   cp /opt/syncftp.sh /mnt/lftp/syncftp.sh
 fi
 
@@ -96,8 +95,7 @@ EOT
 
 
 # Check if the FTP script file exists in the mounted directory.  Only create if it does not exist.
-if [! -f "/mnt/lftp/syncftp.sh" ]
-then
+if [! -f "/mnt/lftp/syncftp.sh" ]; then
   # Create Sync FTP Script
   cat <<'EOT' > /opt/syncControl.sh
   #!/bin/bash
@@ -141,39 +139,39 @@ then
     quit 0
   EOF
   
-    #start working in the mounted directory
-    cd $local_dir
-    #look for which folders exist.
-    for folder in */
-      #only try the following if there is a directory
-      do if [ -d "$folder" ]
-      then
-          #Enter each folder
-          cd "$folder"
-          #date
-                  #Look for the filename ending in .rar
-                  for filename in *.rar
-                          do echo "extracting $filename"
-                          #first do will extract the files from the rar and then delete the .rar file
-                          find . ! -name . -prune -type d -o -name "*.rar" -print -exec unrar e {} -y -o- \; -exec rm {} \;
-  
-                          #other options to find to extract from (not used now)
-                          #find . -name "*part01.rar" -exec unrar e {} -y -o- \;
-                          #find . -name "*part001.rar" -exec unrar e {} -y -o- \;
-                          #find . -name "*.r00" -exec unrar e {} -y -o- \;
-  
-                          #this do will then delete all the *.r01, *.r02 etc.
-                          find . ! -name . -prune -type d -o -name "*.r[0-9]*[0-9]" -print -exec rm {} \;
-                          #I also dont use the SFV files so lets delete them also
-                          find . ! -name . -prune -type d -o -name "*.sfv" -print -exec rm {} \;
-                          #find . -name "*.r*" -exec rm {} \;
-                  done
-          #go back up a directory
-           cd "..";
-          chmod -R 777 "$folder"
-      fi
+  #start working in the mounted directory
+  cd $local_dir
+  #look for which folders exist.
+  for folder in */
+  #only try the following if there is a directory
+  do 
+    if [ -d "$folder" ]; then
+      #Enter each folder
+      cd "$folder"
+      #date
+      #Look for the filename ending in .rar
+      for filename in *.rar
+      do echo "extracting $filename"
+        #first do will extract the files from the rar and then delete the .rar file
+        find . ! -name . -prune -type d -o -name "*.rar" -print -exec unrar e {} -y -o- \; -exec rm {} \;
+    
+        #other options to find to extract from (not used now)
+        #find . -name "*part01.rar" -exec unrar e {} -y -o- \;
+        #find . -name "*part001.rar" -exec unrar e {} -y -o- \;
+        #find . -name "*.r00" -exec unrar e {} -y -o- \;
+    
+        #this do will then delete all the *.r01, *.r02 etc.
+        find . ! -name . -prune -type d -o -name "*.r[0-9]*[0-9]" -print -exec rm {} \;
+        #I also dont use the SFV files so lets delete them also
+        find . ! -name . -prune -type d -o -name "*.sfv" -print -exec rm {} \;
+        #find . -name "*.r*" -exec rm {} \;
       done
-    exit 0
+      #go back up a directory
+      cd "..";
+      chmod -R 777 "$folder"
+    fi
+  done
+  exit 0
   EOT
 fi
 
