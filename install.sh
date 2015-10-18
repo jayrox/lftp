@@ -63,12 +63,12 @@ if [[ -z $FTP_CRON_JOB ]]; then
 fi
 
 if [ ! -d "/mnt/lftp" ]; then
-  mkdir -p -m 777 /mnt/lftp
+  mkdir -p /mnt/lftp
 fi
 
 # Copy the ftp script to the unraid mounted folder
 # Check if the FTP script file exists in the mounted directory.  Only copy it if it does not exist.
-if [! -f "/mnt/lftp/syncftp.sh" ]; then
+if [ ! -f "/mnt/lftp/syncftp.sh" ]; then
   cp /etc/lftp/syncftp.sh /mnt/lftp/syncftp.sh
 fi
 
