@@ -72,8 +72,10 @@ if [ ! -f "/mnt/lftp/syncftp.sh" ]; then
   cp /etc/lftp/syncftp.sh /mnt/lftp/syncftp.sh
 fi
 
-# Make sure the scripts are executable
-chmod +x /mnt/lftp/syncftp.sh
+# Make sure the script is writable by all.  In case you want to modify it.
+chmod 777 /mnt/lftp/syncftp.sh
+
+# Make sure the script is executable
 chmod +x /etc/lftp/syncControl.sh
 
 # Add a cron to run the script
