@@ -148,6 +148,7 @@ fi
 touch "$lock_file"
 echo "$(timestamp): lftp is now running."
 
+# NOTE: This REMOVES sourcefiles.
 args="-v -c -L --no-empty-dirs --Remove-source-files --loop -x '(\.png|\.jpg|\.nfo|\.jpeg|\.gif|\.srt|\.txt|[Ss][Aa][Mm][Pp][Ll][Ee]|[Ss][Uu][Bb][Ss]|[Pp][Rr][Oo][Ff][Ff])'"
 
 # Optional - The number of parallel files to download. It is set to download 5 file at a time.
