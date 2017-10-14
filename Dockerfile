@@ -1,5 +1,5 @@
 FROM phusion/baseimage:0.9.17
-MAINTAINER Scottst <scott.st@gmail.com>
+MAINTAINER Jay <jayrox@gmail.com>
 LABEL BASEIMAGE="phusion/baseimage:0.9.17"
 
 #########################################
@@ -20,4 +20,4 @@ RUN chmod +x /tmp/install.sh && /tmp/install.sh && rm /tmp/install.sh
 #########################################
 ##         EXPORTS AND VOLUMES         ##
 #########################################
-VOLUME ["/mnt/lftp"]
+VOLUME ["/mnt/lftp", "/mnt/downloads"]
