@@ -3,6 +3,9 @@
 # Thanks to the work by gfjardim for providing the format for this docker.
 # https://github.com/gfjardim/
 #
+# Thanks to the work of Scott-St for providing the container this one was modified from.
+# https://github.com/Scott-St/lftp
+#
 # Created Oct 4, 2015
 # Modified Oct 14, 2017
 #
@@ -31,8 +34,7 @@ add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-proposed restri
 
 # Install Required Programs
 apt-get update -qq
-apt-get install -qy -f lftp \
-                      unrar
+apt-get install -qy -f lftp
 
 # Startup Script
 cat <<'EOT' > /etc/my_init.d/config.sh
@@ -80,6 +82,8 @@ chmod +x /etc/lftp/syncControl.sh
 
 # Add a cron to run the script, if it doesn't already exist
 FTP_CRON_JOB+=" /etc/lftp/syncControl.sh >> /mnt/lftp/syncftp.log 2>&1"
+
+# Add cronjob if it doesn't already exist.
 crontab  -l | grep -q 'syncControl' && echo 'job exists' || { cat; echo "$FTP_CRON_JOB"; } | crontab -
 
 # Remove lftp lock file if it exists
@@ -117,10 +121,13 @@ cat <<'EOT' > /etc/lftp/syncftp.sh
 # This script is called from /etc/lftp/syncControl.sh
 #
 # This script will enter the FTP, mirror the completed directory to the locally mounted directory (unraid server mnt/cache/downloads share by default)
-# After downloading from the FTP it will remove the FTP files
-# It will then extract and RAR files that are CONTAINED in the root folder but not a subfolder of the folder. ie. it will not extract SUBS
-# It will then delete the RAR files
-# This script is designed to work with Scene Release file structures
+#
+# This source version was set to handle extracting and clean up.
+# I prefer to not download most of the junk to start with so I ignored it from downloading at all.
+# Files like .png, .jpg, .jpeg, .nfo, .gif, .srt, .txt, sample, subs and proof are ignored.
+#
+# I also prefer to handle file extractions and clean up as part of another process.
+# This file is saved to /mnt/lftp/syncftp.sh on inital run, feel free to make changes
 
 # Define a timestamp function
 timestamp() {
@@ -134,16 +141,16 @@ trap "rm -f $lock_file" SIGINT SIGTERM
 
 if [[ -e "$lock_file" ]]
 then
-	echo "$(timestamp): lftp_tv is already running."
+	echo "$(timestamp): lftp is already running."
 	exit 0
 fi
 
 touch "$lock_file"
-echo "$(timestamp): lftp_tv is now running."
+echo "$(timestamp): lftp is now running."
 
 args="-v -c -L --no-empty-dirs --Remove-source-files --loop -x '(\.png|\.jpg|\.nfo|\.jpeg|\.gif|\.srt|\.txt|[Ss][Aa][Mm][Pp][Ll][Ee]|[Ss][Uu][Bb][Ss]|[Pp][Rr][Oo][Ff][Ff])'"
 
-# Optional - The number of parallel files to download. It is set to download 1 file at a time.
+# Optional - The number of parallel files to download. It is set to download 5 file at a time.
 parallel="5"
 # Optional - set maximum number of connections lftp can open
 default_pget="5"
@@ -159,12 +166,12 @@ lftp -p "$port" -u "$login,$pass" "sftp://$host" <<-EOF
   set ftp:ssl-protect-list yes
   set ftp:ssl-protect-data yes
   set ssl:verify-certificate off
-	set mirror:parallel-transfer-count "$parallel"
-	set pget:default-n $default_pget
-	set mirror:use-pget-n $pget_mirror
-	set net:limit-total-rate 104857600:0 
+  set mirror:parallel-transfer-count "$parallel"
+  set pget:default-n $default_pget
+  set mirror:use-pget-n $pget_mirror
+  set net:limit-total-rate 104857600:0 
   set xfer:log-file "/mnt/lftp/xfer.log"
-	mirror $args "$remote_dir" "$local_dir"
+  mirror $args "$remote_dir" "$local_dir"
   quit 0
 EOF
 
@@ -181,7 +188,7 @@ do
 done
 
 rm -f "$lock_file"
-echo "$(timestamp): lftp_tv is now exiting."
+echo "$(timestamp): lftp is now exiting."
 exit 0
 EOT
 
