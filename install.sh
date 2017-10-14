@@ -4,7 +4,7 @@
 # https://github.com/gfjardim/
 #
 # Created Oct 4, 2015
-# Modified Oct 18, 2015
+# Modified Oct 14, 2017
 #
 #########################################
 ##        ENVIRONMENTAL CONFIG         ##
@@ -78,9 +78,12 @@ chmod 777 /mnt/lftp/syncftp.sh
 # Make sure the script is executable
 chmod +x /etc/lftp/syncControl.sh
 
-# Add a cron to run the script
+# Add a cron to run the script, if it doesn't already exist
 FTP_CRON_JOB+=" /etc/lftp/syncControl.sh >> /mnt/lftp/syncftp.log 2>&1"
-crontab -l | { cat; echo "$FTP_CRON_JOB"; } | crontab -
+crontab  -l | grep -q 'syncControl' && echo 'job exists' || { cat; echo "$FTP_CRON_JOB"; } | crontab -
+
+# Remove lftp lock file if it exists
+rm /mnt/lftp/lftp.lock
 EOT
 
 mkdir -p /etc/lftp
