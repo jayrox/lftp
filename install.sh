@@ -82,12 +82,12 @@ chmod +x /etc/lftp/syncControl.sh
 
 # Add a cron to run the script, if it doesn't already exist
 FTP_CRON_JOB+=" /etc/lftp/syncControl.sh >> /mnt/lftp/syncftp.log 2>&1"
-
-# Add cronjob if it doesn't already exist.
 crontab  -l | grep -q 'syncControl' && echo 'job exists' || { cat; echo "$FTP_CRON_JOB"; } | crontab -
 
 # Remove lftp lock file if it exists
-rm /mnt/lftp/lftp.lock
+if [ -f "/mnt/lftp/lftp.lock"]; then
+  rm /mnt/lftp/lftp.lock
+fi
 EOT
 
 mkdir -p /etc/lftp
