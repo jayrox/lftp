@@ -122,25 +122,49 @@ cat <<'EOT' > /etc/lftp/syncftp.sh
 # It will then delete the RAR files
 # This script is designed to work with Scene Release file structures
 
+# Define a timestamp function
+timestamp() {
+  date +"%Y-%m-%d_%H-%M-%S"
+}
+
 local_dir="/mnt/downloads"
 
-#lftp connection information.  May need to be modified for specific connection requirements
-lftp << EOF
-  set net:timeout 30
-  set net:max-retries 10
-  set net:reconnect-interval-base 5
-  set net:reconnect-interval-multiplier 5
+lock_file="/mnt/lftp/lftp.lock"
+trap "rm -f $lock_file" SIGINT SIGTERM
+
+if [[ -e "$lock_file" ]]
+then
+	echo "$(timestamp): lftp_tv is already running."
+	exit 0
+fi
+
+touch "$lock_file"
+echo "$(timestamp): lftp_tv is now running."
+
+args="-v -c -L --no-empty-dirs --Remove-source-files --loop -x '(\.png|\.jpg|\.nfo|\.jpeg|\.gif|\.srt|\.txt|[Ss][Aa][Mm][Pp][Ll][Ee]|[Ss][Uu][Bb][Ss]|[Pp][Rr][Oo][Ff][Ff])'"
+
+# Optional - The number of parallel files to download. It is set to download 1 file at a time.
+parallel="5"
+# Optional - set maximum number of connections lftp can open
+default_pget="5"
+# Optional - Set the number of connections per file lftp can open
+pget_mirror="5"
+
+# 10485760 = 10 
+# 20485760 = 20
+# 104857600 = 100
+lftp -p "$port" -u "$login,$pass" "sftp://$host" <<-EOF
   set ftp:ssl-auth TLS
   set ftp:ssl-force true
   set ftp:ssl-protect-list yes
   set ftp:ssl-protect-data yes
   set ssl:verify-certificate off
-  set mirror:use-pget-n 5
-  open -p $port -u $login,$pass $host
-  cd "$remote_dir"
-  find . | grep [[:alnum:]] | sed -e 's~.~rmdir" "-f" "\".~' -e 's~$~\"~' | tac > /tmp/delete
-  mirror -c -P2 -vvv --no-empty-dirs --Remove-source-files $remote_dir $local_dir
-  source /tmp/delete
+	set mirror:parallel-transfer-count "$parallel"
+	set pget:default-n $default_pget
+	set mirror:use-pget-n $pget_mirror
+	set net:limit-total-rate 104857600:0 
+  set xfer:log-file "/mnt/lftp/xfer.log"
+	mirror $args "$remote_dir" "$local_dir"
   quit 0
 EOF
 
@@ -151,31 +175,13 @@ for folder in */
 #only try the following if there is a directory
 do 
   if [ -d "$folder" ]; then
-    #Enter each folder
-    cd "$folder"
-    #date
-    #Look for the filename ending in .rar
-    for filename in *.rar
-    do echo "extracting $filename"
-      #first do will extract the files from the rar and then delete the .rar file
-      find . ! -name . -prune -type d -o -name "*.rar" -print -exec unrar e {} -y -o- \; -exec rm {} \;
-  
-      #other options to find to extract from (not used now)
-      #find . -name "*part01.rar" -exec unrar e {} -y -o- \;
-      #find . -name "*part001.rar" -exec unrar e {} -y -o- \;
-      #find . -name "*.r00" -exec unrar e {} -y -o- \;
-  
-      #this do will then delete all the *.r01, *.r02 etc.
-      find . ! -name . -prune -type d -o -name "*.r[0-9]*[0-9]" -print -exec rm {} \;
-      #I also dont use the SFV files so lets delete them also
-      find . ! -name . -prune -type d -o -name "*.sfv" -print -exec rm {} \;
-      #find . -name "*.r*" -exec rm {} \;
-    done
-    #go back up a directory
-    cd "..";
+    #echo $folder
     chmod -R 777 "$folder"
   fi
 done
+
+rm -f "$lock_file"
+echo "$(timestamp): lftp_tv is now exiting."
 exit 0
 EOT
 
