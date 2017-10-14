@@ -85,7 +85,7 @@ FTP_CRON_JOB+=" /etc/lftp/syncControl.sh >> /mnt/lftp/syncftp.log 2>&1"
 crontab  -l | grep -q 'syncControl' && echo 'job exists' || { cat; echo "$FTP_CRON_JOB"; } | crontab -
 
 # Remove lftp lock file if it exists
-if [ -f "/mnt/lftp/lftp.lock"]; then
+if [ -f "/mnt/lftp/lftp.lock" ]; then
   rm /mnt/lftp/lftp.lock
 fi
 EOT
