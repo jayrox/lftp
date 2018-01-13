@@ -59,11 +59,6 @@ sed -i -e "s#FTP_PASSWORD#${FTP_PASSWORD}#" /etc/lftp/syncControl.sh
 sed -i -e "s#FTP_HOST#${FTP_HOST}#" /etc/lftp/syncControl.sh
 sed -i -e "s#FTP_REMOTE_DIR#${FTP_REMOTE_DIR}#" /etc/lftp/syncControl.sh
 
-# If no cron time is specified use daily at 1AM
-if [[ -z $FTP_CRON_JOB ]]; then
-  $FTP_CRON_JOB="0 1 * * *"
-fi
-
 if [ ! -d "/mnt/lftp" ]; then
   mkdir -p /mnt/lftp
 fi
@@ -80,6 +75,10 @@ chmod 777 /mnt/lftp/syncftp.sh
 # Make sure the script is executable
 chmod +x /etc/lftp/syncControl.sh
 
+# If no cron time is specified use daily at 1AM
+if [[ -z $FTP_CRON_JOB ]]; then
+  $FTP_CRON_JOB="0 1 * * *"
+fi
 # Add a cron to run the script, if it doesn't already exist
 FTP_CRON_JOB+=" /etc/lftp/syncControl.sh >> /mnt/lftp/syncftp.log 2>&1"
 crontab -l | grep -q 'syncControl' && echo 'job exists' || { cat; echo "$FTP_CRON_JOB"; } | crontab -
