@@ -166,6 +166,7 @@ lftp -p "$port" -u "$login,$pass" "sftp://$host" <<-EOF
   set ftp:ssl-protect-list yes
   set ftp:ssl-protect-data yes
   set ssl:verify-certificate off
+  set sftp:auto-confirm yes
   set mirror:parallel-transfer-count "$parallel"
   set pget:default-n $default_pget
   set mirror:use-pget-n $pget_mirror
